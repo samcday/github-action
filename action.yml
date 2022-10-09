@@ -22,6 +22,10 @@ inputs:
     description: 'Fixed hostname to use.'
     required: false
     default: ''
+  loginserver:
+    description: 'Base URL of control server'
+    required: true
+    default: 'https://controlplane.tailscale.com'
 runs:
     using: 'composite'
     steps:
@@ -48,9 +52,10 @@ runs:
           TAILSCALE_AUTHKEY: ${{ inputs.authkey }}
           ADDITIONAL_ARGS: ${{ inputs.args }}
           HOSTNAME: ${{ inputs.hostname }}
+          LOGINSERVER: ${{ inputs.loginserver }}
         run: |
           sudo tailscaled 2>~/tailscaled.log &
           if [ -z "${HOSTNAME}" ]; then
             HOSTNAME="github-$(cat /etc/hostname)"
           fi
-          sudo tailscale up --authkey ${TAILSCALE_AUTHKEY} --hostname=${HOSTNAME} --accept-routes ${ADDITIONAL_ARGS}
+          sudo tailscale up --authkey ${TAILSCALE_AUTHKEY} --hostname=${HOSTNAME} --accept-routes ${ADDITIONAL_ARGS} --login-server=${LOGINSERVER}
